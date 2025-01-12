@@ -1,4 +1,5 @@
 ﻿using BookStore.DataAccess.Data;
+using BookStore.DataAccess.Repository.IRepository;
 using BookStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -8,16 +9,15 @@ namespace BookStore.Controllers
     public class CategoryController : Controller
     {
         //local variable
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _iunitOfWork;
         //constructor
-        public CategoryController(ApplicationDbContext db)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            //assigning the db context to the local variable
-            _db = db;
+            _iunitOfWork = unitOfWork;
         }
         public IActionResult Index()
         {
-            List<Category> objCategoryList = _db.Categories.ToList();
+            List<Category> objCategoryList = _iunitOfWork.Category.GetAll().ToList();
             return View(objCategoryList);
         }
         public IActionResult Create()
@@ -31,13 +31,14 @@ namespace BookStore.Controllers
             {
                 //add custom err mess
                 ModelState.AddModelError("name", "The Display Order cannot be the same as the Category Name");
+
             }
            
-
+            
             if (ModelState.IsValid)
             {
-                _db.Categories.Add(obj);
-                _db.SaveChanges();
+                _iunitOfWork.Category.Add(obj);
+                _iunitOfWork.Save();
                 TempData["successMess"] = "Category created successfully";
                 return RedirectToAction("Index", "Category");
 
@@ -57,7 +58,7 @@ namespace BookStore.Controllers
             }
 
             //search by id
-            Category? categoryFromDb= _db.Categories.Find(id);
+            Category? categoryFromDb= _iunitOfWork.Category.Get(u=>u.Id==id);
             if(categoryFromDb == null)
             {
                 return NotFound();
@@ -71,8 +72,8 @@ namespace BookStore.Controllers
             //server side validation
             if (ModelState.IsValid)
             {
-                _db.Categories.Update(obj);
-                _db.SaveChanges();
+                _iunitOfWork.Category.Update(obj);
+                _iunitOfWork.Save();
                 //temp data to show mess on index page
                 TempData["successMess"] = "Category updated successfully";
 
@@ -94,7 +95,7 @@ namespace BookStore.Controllers
             }
 
             //search by id
-            Category? categoryFromDb = _db.Categories.Find(id);
+            Category? categoryFromDb = _iunitOfWork.Category.Get(u => u.Id == id);
             if (categoryFromDb == null)
             {
                 return NotFound();
@@ -104,14 +105,14 @@ namespace BookStore.Controllers
         [HttpPost,ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category? obj=_db.Categories.Find(id);
+            Category? obj= _iunitOfWork.Category.Get(u => u.Id == id);
             if ((obj == null)) 
             {
                 return NotFound();
 
             }
-            _db.Categories.Remove(obj);
-            _db.SaveChanges();
+            _iunitOfWork.Category.Remove(obj);
+            _iunitOfWork.Save();
             TempData["successMess"] = "Category deleted successfully";
 
             return RedirectToAction("Index", "Category");
