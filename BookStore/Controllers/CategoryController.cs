@@ -1,4 +1,4 @@
-﻿using BookStore.Data;
+﻿using BookStore.DataAccess.Data;
 using BookStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -50,7 +50,7 @@ namespace BookStore.Controllers
 
         public IActionResult Edit(int id)
         {
-            if (id==null || id ==0)
+            if (id == null || id == 0)
             {
                 return NotFound();
 
