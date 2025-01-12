@@ -4,8 +4,9 @@ using BookStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace BookStore.Controllers
+namespace BookStore.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         //local variable
@@ -27,14 +28,14 @@ namespace BookStore.Controllers
         [HttpPost]
         public IActionResult Create(Category obj)
         {
-            if (obj.Name== obj.DisplayOrder.ToString())
+            if (obj.Name == obj.DisplayOrder.ToString())
             {
                 //add custom err mess
                 ModelState.AddModelError("name", "The Display Order cannot be the same as the Category Name");
 
             }
-           
-            
+
+
             if (ModelState.IsValid)
             {
                 _iunitOfWork.Category.Add(obj);
@@ -58,8 +59,8 @@ namespace BookStore.Controllers
             }
 
             //search by id
-            Category? categoryFromDb= _iunitOfWork.Category.Get(u=>u.Id==id);
-            if(categoryFromDb == null)
+            Category? categoryFromDb = _iunitOfWork.Category.Get(u => u.Id == id);
+            if (categoryFromDb == null)
             {
                 return NotFound();
             }
@@ -102,11 +103,11 @@ namespace BookStore.Controllers
             }
             return View(categoryFromDb);
         }
-        [HttpPost,ActionName("Delete")]
+        [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category? obj= _iunitOfWork.Category.Get(u => u.Id == id);
-            if ((obj == null)) 
+            Category? obj = _iunitOfWork.Category.Get(u => u.Id == id);
+            if (obj == null)
             {
                 return NotFound();
 
@@ -116,7 +117,7 @@ namespace BookStore.Controllers
             TempData["successMess"] = "Category deleted successfully";
 
             return RedirectToAction("Index", "Category");
-            
+
 
 
         }
